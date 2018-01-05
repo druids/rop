@@ -49,14 +49,30 @@
 
 (defn >>=
   "An infix version of bind for piping two-track values into switch fns. Can be used to pipe two-track values
-   through a series of switch fns. A result of this function should be Ring's response.
-   First parameter is a success key (it will be used as :body in result hash-map). Second is an input hash-map
-   it will be passed throgh switch fns. And rest parameters as switch fns."
-  [success-key input & fns]
-  (let [result (apply m/>>= (into [(succeed input)] fns))
-        extracted-result (m/extract result)]
+   through a series of switch fns. First is an input hash-map it will be passed throgh switch fns.
+   Rest parameters as switch fns."
+  [input & fns]
+  (-> m/>>=
+      (apply (into [(succeed input)] fns))
+      m/extract))
+
+
+(defn >>=*
+  "An infix version of bind for piping two-track values into switch fns. Can be used to pipe two-track values
+   through a series of switch fns. A result of this function is Ring's response.
+   First parameter is a success key (it will be used as :body in result hash-map) or a tuple with success-key and
+   output-keys (at the end `select-keys` will be applied on a success result with these `output-keys`).
+   Second is an input hash-map it will be passed throgh switch fns. Rest parameters as switch fns."
+  [success-key-or-tuple input & fns]
+  (let [[success-key output-keys] (if (vector? success-key-or-tuple) success-key-or-tuple [success-key-or-tuple nil])
+        result (apply m/>>= (into [(succeed input)] fns))
+        extracted-result (m/extract result)
+        format-output (fn [success-result]
+                        (if (coll? output-keys)
+                          (select-keys success-result output-keys)
+                          success-result))]
     (if (success? result)
-      {:body (get extracted-result success-key)
+      {:body (format-output (get extracted-result success-key))
        :status (get-in extracted-result [:response :status] 200)
        :headers (get-in extracted-result [:response :headers] {})}
       extracted-result)))
