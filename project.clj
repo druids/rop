@@ -1,4 +1,4 @@
-(defproject tol "0.0.0"
+(defproject rop "0.1.0"
   :description "Yet another Railway Oriented Programming in Clojure"
   :url "https://github.com/druids/rop"
   :license {:name "MIT License"
