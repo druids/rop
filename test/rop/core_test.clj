@@ -66,6 +66,16 @@
                             (rop/switch create-user)
                             (rop/dead send-email!))))))
 
+  (testing "Should return a success Ring's response with limited output on a collection"
+    (is (= [{:id 1}]
+           (:body (rop/>>=* [:new-users #{:id}]
+                            {:email "FOO@BAR.COM", :new-user nil, :new-users nil}
+                            (rop/switch format-email)
+                            validate-email
+                            (rop/switch create-user)
+                            (rop/switch #(assoc % :new-users [(:new-user %)]))
+                            (rop/dead send-email!))))))
+
   (testing "Should return a success"
     (is (= {:email "foo@bar.com", :new-user {:email "foo@bar.com", :id 1}}
            (rop/>>= {:email "FOO@BAR.COM", :new-user nil}
