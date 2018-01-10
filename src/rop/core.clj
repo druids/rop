@@ -57,6 +57,13 @@
       m/extract))
 
 
+(defn- extract-output-keys
+  [result output-keys]
+  (if (map? result)
+    (select-keys result output-keys)
+    (map #(select-keys % output-keys) result)))
+
+
 (defn >>=*
   "An infix version of bind for piping two-track values into switch fns. Can be used to pipe two-track values
    through a series of switch fns. A result of this function is Ring's response.
@@ -69,7 +76,7 @@
         extracted-result (m/extract result)
         format-output (fn [success-result]
                         (if (coll? output-keys)
-                          (select-keys success-result output-keys)
+                          (extract-output-keys success-result output-keys)
                           success-result))]
     (if (success? result)
       {:body (format-output (get extracted-result success-key))
