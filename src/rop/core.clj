@@ -83,3 +83,30 @@
        :status (get-in extracted-result [:response :status] 200)
        :headers (get-in extracted-result [:response :headers] {})}
       extracted-result)))
+
+
+(defn =validate-request=
+  "A railway function that validates a request by a given scheme.
+   If data are valid it updates them in the request (with coerced data), otherwise returns Bad Requests within errors.
+
+   Parameters:
+     - `validate` a function that takes an input and a validation scheme, it should return a tuple of errors
+          and validated input
+     - `scheme` a validation scheme
+     - `default` default values as a `hash-map`, it will be merged into a validated input
+     - `request-key a key in a `request` that holds the input data`
+     - `input` a ROP input"
+  [validate scheme defaults request-key {:keys [request] :as input}]
+  (let [[errors validated-input] (validate (select-keys (get request request-key) (keys scheme)) scheme)]
+    (if (nil? errors)
+      (succeed (assoc-in input [:request request-key] (merge (zipmap (keys scheme) (repeat nil))
+                                                             defaults
+                                                             validated-input)))
+      (fail {:status 400, :body {:errors errors}}))))
+
+
+(defn =merge-params=
+  "A railway function that merges a given `source` key into a `target` key in a request.
+   It's useful when route params and body params are validated together."
+  [source target {:keys [request] :as input}]
+  (succeed (update-in input [:request target] merge (get request source))))
