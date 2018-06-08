@@ -230,3 +230,56 @@ Same when a failure needs to define status of headers
 ;; returns
 {:status 400, :body {:errors {:email ["Invalid format"]}}}
 ```
+
+### =validate-request=
+A railway function that validates a request by a given scheme.
+ If data are valid it updates them in the request (with coerced data), otherwise returns Bad Requests within errors.
+
+Parameters:
+  - `validate` a function that takes an input and a validation scheme, it should return a tuple of errors
+       and validated input
+  - `scheme` a validation scheme
+  - `default` default values as a `hash-map`, it will be merged into a validated input
+  - `request-key a key in a `request` that holds the input data`
+  - `input` a ROP input"
+
+An example usage with Struct library:
+
+```clojure
+(require '[struct.core :as st])
+
+(rop/>>=*  [:new-user #{:id}]
+           {:email "", :new-user nil}, :request request)
+           (partial rop/=validate-request= st/validate {:id [st/number-str]} {} :params
+           (rop/switch format-email)
+           validate-email
+           (rop/switch create-user)
+           (rop/dead send-email!)))
+```
+
+Function `=validate-request=` will fail when `st/validate` returns any error it creates Ring Bad Request response:
+
+```clojure
+{:status 400, :body {:errors {:id "mut be a number"}}}))))
+```
+
+Or it continues in a flow and updates an input by a coerced input returned by Struct.
+
+
+### =merge-params=
+A railway function that merges a given `source` key into a `target` key in a request.
+ It's useful when route params and body params are validated together."
+
+```clojure
+(rop/>>=*  [:new-user #{:id}]
+           {:email "", :new-user nil}, :request request
+           (partial rop/=merge-params= :body-params :params)
+           (partial rop/=validate-request= st/validate {:id [st/number-str]} {} :params)
+           (rop/switch format-email)
+           validate-email
+           (rop/switch create-user)
+           (rop/dead send-email!)))
+```
+
+Function `=merge-params=` updates `:params` within `:body-params` in a request. It's useful when combining query
+ parameter within body parameters before a validation.

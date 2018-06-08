@@ -8,5 +8,7 @@
 
   :profiles {:dev {:plugins [[lein-cloverage "1.0.10"]
                              [lein-kibit "0.1.6"]
-                             [jonase/eastwood "0.2.5"]]
-                   :dependencies [[org.clojure/clojure "1.9.0"]]}})
+                             [jonase/eastwood "0.2.5"]
+                             [lein-eftest "0.5.2"]]
+                   :dependencies [[org.clojure/clojure "1.9.0"]
+                                  [funcool/struct "1.3.0"]]}})
