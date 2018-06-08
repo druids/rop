@@ -1,3 +1,11 @@
+## 0.3.0
+
+#### New Features
+
+  - Add =validate-request= function #13
+  - Add =merge-params= function #13
+
+
 ## 0.2.1
 
 #### Changed
