@@ -99,8 +99,7 @@
   [validate scheme defaults request-key {:keys [request] :as input}]
   (let [[errors validated-input] (validate (select-keys (get request request-key) (keys scheme)) scheme)]
     (if (nil? errors)
-      (succeed (assoc-in input [:request request-key] (merge (zipmap (keys scheme) (repeat nil))
-                                                             defaults
+      (succeed (assoc-in input [:request request-key] (merge defaults
                                                              validated-input)))
       (fail {:status 400, :body {:errors errors}}))))
 

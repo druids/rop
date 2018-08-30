@@ -102,7 +102,15 @@
                                               {:id [st/number-str]}
                                               {}
                                               :params
-                                              {:request {:params {:id ""}}}))))))
+                                              {:request {:params {:id ""}}})))))
+
+  (testing "default values"
+    (is (= {:request {:params {:id 0, :a 1}}}
+           (m/extract (rop/=validate-request= st/validate
+                                              {:id [st/number-str], :a [st/number-str], :b [st/number-str]}
+                                              {:a 1}
+                                              :params
+                                              {:request {:params {:id "0"}}}))))))
 
 
 (deftest merge-params-test
