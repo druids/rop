@@ -1,3 +1,10 @@
+## 0.4.0
+
+#### Breaking
+
+  - Remove default nil values from =validate-request= #15
+
+
 ## 0.3.0
 
 #### New Features
