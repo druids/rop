@@ -64,6 +64,18 @@
     (map #(select-keys % output-keys) result)))
 
 
+(defn- strip-nonexistent-keys
+  [data steps]
+  (reduce-kv (fn [acc path _]
+               (let [path-vec (if (vector? path) path [path])
+                     value (get-in data path-vec ::notexists)]
+                 (if (= value ::notexists)
+                   acc
+                   (assoc-in acc path-vec value))))
+             {}
+             steps))
+
+
 (defn >>=*
   "An infix version of bind for piping two-track values into switch fns. Can be used to pipe two-track values
    through a series of switch fns. A result of this function is Ring's response.
@@ -97,7 +109,7 @@
      - `request-key a key in a `request` that holds the input data`
      - `input` a ROP input"
   [validate scheme defaults request-key {:keys [request] :as input}]
-  (let [[errors validated-input] (validate (select-keys (get request request-key) (keys scheme)) scheme)]
+  (let [[errors validated-input] (validate (strip-nonexistent-keys (get request request-key) scheme) scheme)]
     (if (nil? errors)
       (succeed (assoc-in input [:request request-key] (merge defaults
                                                              validated-input)))

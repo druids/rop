@@ -96,6 +96,14 @@
                                               :params
                                               {:request {:params {:id "1"}}})))))
 
+  (testing "should assoc a nested validated input"
+    (is (= {:request {:params {:foo {:bar "baz"}}}}
+           (m/extract (rop/=validate-request= st/validate
+                                              {[:foo :bar] [st/string]}
+                                              {}
+                                              :params
+                                              {:request {:params {:foo {:bar "baz"}}}})))))
+
   (testing "should assoc errors"
     (is (= {:status 400, :body {:errors {:id "must be a number"}}}
            (m/extract (rop/=validate-request= st/validate
