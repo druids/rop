@@ -16,7 +16,7 @@ Leiningen/Boot
 --------------
 
 ```clojure
-[rop "0.4.0"]
+[rop "0.4.1"]
 ```
 
 

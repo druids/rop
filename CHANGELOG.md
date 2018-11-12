@@ -1,3 +1,10 @@
+## 0.4.1
+
+#### Fixes
+
+  - Fixed selecting keys from request #18
+
+
 ## 0.4.0
 
 #### Breaking
